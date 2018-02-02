@@ -281,14 +281,10 @@ static char UIScrollViewPullToRefreshView;
         self.subtitleLabel.text = subtitle.length > 0 ? subtitle : nil;
         
         
-        CGSize titleSize = [self.titleLabel.text sizeWithFont:self.titleLabel.font
-                                            constrainedToSize:CGSizeMake(labelMaxWidth,self.titleLabel.font.lineHeight)
-                                                lineBreakMode:self.titleLabel.lineBreakMode];
+        CGSize titleSize = [self textSizeWithLabel:self.titleLabel constrainedToSize:CGSizeMake(labelMaxWidth,self.titleLabel.font.lineHeight)];
         
         
-        CGSize subtitleSize = [self.subtitleLabel.text sizeWithFont:self.subtitleLabel.font
-                                                  constrainedToSize:CGSizeMake(labelMaxWidth,self.subtitleLabel.font.lineHeight)
-                                                      lineBreakMode:self.subtitleLabel.lineBreakMode];
+        CGSize subtitleSize = [self textSizeWithLabel:self.subtitleLabel constrainedToSize:CGSizeMake(labelMaxWidth,self.subtitleLabel.font.lineHeight)];
         
         CGFloat maxLabelWidth = MAX(titleSize.width,subtitleSize.width);
         
@@ -324,6 +320,26 @@ static char UIScrollViewPullToRefreshView;
                                       self.arrow.bounds.size.height);
         self.activityIndicatorView.center = self.arrow.center;
     }
+}
+
+- (CGSize)textSizeWithLabel:(UILabel *)label constrainedToSize:(CGSize)constrainedToSize{
+    if (!label.text || label.text.length < 1) {
+        return CGSizeZero;
+    }
+    NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:label.text];
+    
+    NSRange allRange = [label.text rangeOfString:label.text];
+    [attrStr addAttribute:NSFontAttributeName
+                    value:label.font
+                    range:allRange];
+    [attrStr addAttribute:NSForegroundColorAttributeName
+                    value:[UIColor blackColor]
+                    range:allRange];
+    NSStringDrawingOptions options =  NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading;
+    CGRect rect = [attrStr boundingRectWithSize:constrainedToSize
+                                        options:options
+                                        context:nil];
+    return CGSizeMake(rect.size.width, rect.size.height + 2);
 }
 
 #pragma mark - Scroll View
